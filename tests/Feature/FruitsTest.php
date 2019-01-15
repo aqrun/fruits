@@ -13,6 +13,11 @@ class FruitsTest extends TestCase
     use DatabaseMigrations;
 
 
+    /**
+     * @test
+     *
+     * Test: GET /api
+     */
     public function testItPraisesTheFruits()
     {
         $this->get('/api')
@@ -21,6 +26,11 @@ class FruitsTest extends TestCase
             ]);
     }
 
+    /**
+     * @test
+     *
+     * Test: GET /api/fruits
+     */
     public function testFetchesFruits()
     {
         $this->seed('FruitsTableSeeder');
@@ -30,6 +40,27 @@ class FruitsTest extends TestCase
                     '*' => [
                         'name', 'color', 'weight', 'delicious'
                     ]
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     *
+     * Test: GET /api/fruit/1
+     */
+    public function testFetchesASingleFruit()
+    {
+        $this->seed('FruitsTableSeeder');
+
+        $this->get('/api/fruit/1')
+            ->assertJson([
+                'data' => [
+                    'id' => 1,
+                    'name' => "Apple",
+                    'color' => "Green",
+                    'weight' => '150 grams',
+                    'delicious' => true
                 ]
             ]);
     }
