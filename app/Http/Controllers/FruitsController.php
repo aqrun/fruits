@@ -39,4 +39,16 @@ class FruitsController extends BaseController
         return $this->response->errorBadRequest();
     }
 
+    public function destroy($id)
+    {
+        $fruit = Fruit::find($id);
+
+        if($fruit) {
+            $fruit->delete();
+            return $this->response()->noContent();
+        }
+
+        return $this->response->errorBadRequest();
+    }
+
 }

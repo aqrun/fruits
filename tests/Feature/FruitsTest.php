@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Fruit;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
@@ -117,6 +118,53 @@ class FruitsTest extends TestCase
         }
 
         return $headers;
+    }
+
+    /**
+     * @test
+     *
+     * Test: POST /api/fruits
+     */
+    public function test401WhenNotAuthorized()
+    {
+        $fruit = Fruit::create([
+            'name' => 'peache', 'color' => 'peache', 'weight' => 175, 'delicious' => true
+        ])->toArray();
+
+        $this->post('/api/fruits', $fruit)
+            ->assertStatus(401);
+    }
+
+    /**
+     * @test
+     *
+     * Test: POST /api/fruits
+     */
+    public function test422WhenValidationFails()
+    {
+        $user = factory(User::class)->create(['password'=>bcrypt('foo')]);
+
+        $fruit = ['name'=>'peache', 'color'=>'peache', 'weight'=>175, 'delicious'=>true];
+
+        $this->post('/api/fruits', $fruit, $this->headers($user))
+            ->assertStatus(201);
+
+        $this->post('/api/fruits', $fruit, $this->headers($user))
+            ->assertStatus(422);
+    }
+
+    /**
+     * @test
+     *
+     * Test: DELETE /api/fruits/$id
+     */
+    public function testDeleteAFruit()
+    {
+        $user = factory(User::class)->create(['password'=>bcrypt('foo')]);
+
+        $fruit = Fruit::create(['name'=>'peache', 'color'=>'peache', 'weight'=>175, 'delicious'=>true]);
+        $this->delete('/api/fruits/' . $fruit->id, [], $this->headers($user))
+            ->assertStatus(204);
     }
 
 }
