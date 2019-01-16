@@ -23,9 +23,9 @@ $api->version('v1', function($api){
     $api->get('token', 'App\Http\Controllers\AuthenticateController@getToken');
 
 
-    $api->get('/', function(){
-        return ['Fruits' => 'Delicious and healthy!'];
-    });
+//    $api->get('/', function(){
+//        return ['Fruits' => 'Delicious and healthy!'];
+//    });
     $api->get('fruits', 'App\Http\Controllers\FruitsController@index');
     $api->get('fruit/{id}', 'App\Http\Controllers\FruitsController@show');
 });
