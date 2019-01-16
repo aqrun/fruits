@@ -25,7 +25,7 @@ class AuthenticateController extends BaseController
             if(!$token = JWTAuth::attempt($credentials)){
                 return response()->json(['error'=>'invalid_credentials'], 401);
             }
-        }catch(JWTException $e){
+        }catch(\Exception $e){
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
 

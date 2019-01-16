@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
+use JWTAuth;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -79,6 +81,42 @@ class FruitsTest extends TestCase
             'password' => 'foo'
             ])
             ->assertJsonStructure(['token']);
+    }
+
+    /**
+     * @test
+     *
+     * Test: POST /api/fruits
+     */
+    public function testSaveAFruit()
+    {
+        $user = factory(User::class)->create(['password' => bcrypt('foo')]);
+        $fruit = [
+            'name' => 'peache', 'color' => 'peache', 'weight' => 175, 'delicious' => true
+        ];
+
+        $response = $this->json('POST', '/api/fruits',$fruit, $this->headers($user));
+
+        $response->assertStatus(201);
+
+    }
+
+    /**
+     * return request headers needed to interact with the api
+     *
+     * @return Array arry of headers
+     */
+    protected function headers($user = null)
+    {
+        $headers = ['Accept' => 'application/json'];
+
+        if(!is_null($user)){
+            $token = JWTAuth::fromUser($user);
+            JWTAuth::setToken($token);
+            $headers['Authorization'] = 'Bearer '. $token;
+        }
+
+        return $headers;
     }
 
 }

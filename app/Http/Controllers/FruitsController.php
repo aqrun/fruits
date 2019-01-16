@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Fruit;
 use App\Transformers\FruitsTransformer;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreFruitRequest;
 
 class FruitsController extends BaseController
 {
@@ -27,4 +28,15 @@ class FruitsController extends BaseController
 
         return $this->response->errorNotFound();
     }
+
+
+    public function store(StoreFruitRequest $request)
+    {
+        if (Fruit::create($request->all())) {
+            return $this->response->created();
+        }
+
+        return $this->response->errorBadRequest();
+    }
+
 }
