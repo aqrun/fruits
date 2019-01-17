@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Helpers\JsonHelper;
 use JWTAuth;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -19,15 +20,23 @@ class AuthenticateController extends BaseController
      * @bodyParam password string required password
      *
      * @response {
-     *   "token": "xxxx"
+     *   "code": 0,
+     *   "msg": "success",
+     *   "result": {
+     *      "token": "xxx"
+     *   }
      * }
      *
-     * @response 401 {
-     *   "error" : "invalid_credentials"
+     * @response {
+     *   "code": 4001,
+     *   "msg" : "invalid_credentials",
+     *   "result": {}
      * }
      *
-     * @response 500 {
-     *   "error" : "could_not_create_token"
+     * @response {
+     *   "code": 500,
+     *   "msg" : "could_not_create_token",
+     *   "result": {}
      * }
      *
      * @param Request $request
@@ -39,13 +48,13 @@ class AuthenticateController extends BaseController
 
         try{
             if(!$token = JWTAuth::attempt($credentials)){
-                return response()->json(['error'=>'invalid_credentials'], 401);
+                return JsonHelper::error([], 'invalid_credentials', 4001);
             }
         }catch(\Exception $e){
-            return response()->json(['error' => 'could_not_create_token'], 500);
+            return JsonHelper::error([], 'could_not_create_token', 500);
         }
 
-        return response()->json(compact('token'));
+        return JsonHelper::success(compact('token'));
     }
 
     /**
@@ -90,21 +99,16 @@ class AuthenticateController extends BaseController
     {
         try{
             if(!$user = JWTAuth::authenticate()) {
-                return response()->json([
-                    'code' => 404,
-                    'msg' => 'user not found',
-                    'result' => []
-                ]);
+                return JsonHelper::error([], 'User not found', 4004);
             }
         } catch (TokenExpiredException $e) {
-            return response()->json(['token_expired'], 400);
+            return JsonHelper::error([], 'token_expired', 4004);
         } catch (TokenInvalidException $e) {
-            return response()->json(['token_invalid'], 400);
+            return JsonHelper::error([], 'token_invalid', 4004);
         } catch (JWTException $e) {
-            return response()->json(['token_absent'], 400);
+            return JsonHelper::error([], 'token_absent', 4004);
         }
-
-        return response()->json(compact('user'));
+        return JsonHelper::success(compact('user'));
     }
 
     /**
@@ -115,16 +119,16 @@ class AuthenticateController extends BaseController
         $token = JWTAuth::getToken();
 
         if(!$token) {
-            return $this->response->errorMethodNotAllowed('Token not provided');
+            return JsonHelper::error([], 'Token not provided');
         }
 
         try {
             $refreshedToken = JWTAuth::refresh($token);
         } catch (JWTException $e) {
-            return $this->response->errorInternal('Not able to refresh Token');
+            return JsonHelper::error([], 'Not able to refresh Token');
         }
 
-        return $this->response->withArray(['token' => $refreshedToken]);
+        return JsonHelper::success(['token'=>$refreshedToken]);
     }
 
 }
